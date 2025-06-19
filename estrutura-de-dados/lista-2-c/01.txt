@@ -1,0 +1,11 @@
+1. Qual das seguintes razões não é uma razão válida para o uso de funções em C?
+
+a. Funções usam menos memória do que se repetirmos o mesmo código
+várias vezes
+b. Funções rodam mais rápido
+c. Funções fornecem um meio de esconder cálculos em uma "caixa preta"
+que pode ser usada sem a preocupação de detalhes internos de
+implementação
+d. Funções mantêm variáveis protegidas das outras partes do programa
+
+Resposta: 'b'
