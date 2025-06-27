@@ -13,7 +13,7 @@ class TV:
 
     def canal_mais(self):
         if self.ligagda:
-            if self.canal == 100:
+            if self.canal == 50:
                 print('A tv já está no canal maximo')
             else:
                 self.canal += 1
@@ -48,7 +48,7 @@ class TV:
             else:
                 self.volume -= 1
         else:
-            print('A tv está ja esta muda')
+            print('A tv está delsigada')
 
 
 class ConttroleRemoto:
@@ -75,14 +75,10 @@ class ConttroleRemoto:
     def diminuir_vol(self):
         self.tv.volume_menos()
 
-
-
-
-
-    def status(self):
-        return self.tv.ligagda
-        return self.tv.canal
-        return self.tv.volume
+    # def status(self):
+    #     return self.tv.ligagda
+    #     return self.tv.canal
+    #     return self.tv.volume
 
 
 
@@ -94,6 +90,6 @@ cr.canal_tras()
 cr.aumentar_vol()
 
 
-print(tv_lg.ligagda)
-print(tv_lg.canal)
-print(tv_lg.volume)
+# print(tv_lg.ligagda)
+# print(tv_lg.canal)
+# print(tv_lg.volume)
