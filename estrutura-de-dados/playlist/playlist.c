@@ -3,7 +3,7 @@
 #include <string.h>
 
 typedef struct Musica {
-    char titulo[100];
+    char titulo[50];
     struct Musica *ant, *prox;
 } Musica;
 
@@ -11,6 +11,8 @@ typedef struct {
     Musica *atual;
     int tamanho;
 } Playlist;
+
+
 
 void iniciar(Playlist *p) {
     p->atual = NULL;
@@ -26,24 +28,27 @@ Musica* criar(const char *titulo) {
 
 void adicionar(Playlist *p, const char *titulo, int pos) {
     Musica *nova = criar(titulo);
-
+    
     if (p->tamanho == 0) {
         nova->prox = nova->ant = nova;
         p->atual = nova;
-    } else if (pos <= 1) {
+    } 
+    else if (pos <= 1) {
         Musica *ult = p->atual->ant;
         nova->prox = p->atual;
         nova->ant = ult;
         ult->prox = nova;
         p->atual->ant = nova;
         p->atual = nova;
-    } else if (pos > p->tamanho) {
+    } 
+    else if (pos > p->tamanho) {
         Musica *ult = p->atual->ant;
         nova->prox = p->atual;
         nova->ant = ult;
         ult->prox = nova;
         p->atual->ant = nova;
-    } else {
+    } 
+    else {
         Musica *m = p->atual;
         for (int i = 1; i < pos - 1; i++) m = m->prox;
         nova->prox = m->prox;
@@ -66,14 +71,15 @@ void remover(Playlist *p, int pos) {
 
     if (p->tamanho == 1) {
         p->atual = NULL;
-    } else {
+    } 
+    else {
         m->ant->prox = m->prox;
         m->prox->ant = m->ant;
         if (m == p->atual)
             p->atual = m->prox;
     }
 
-    printf("Removida: %s - %s\n", m->titulo);
+    printf("Removida: %s\n", m->titulo);
     free(m);
     p->tamanho--;
 }
@@ -81,14 +87,14 @@ void remover(Playlist *p, int pos) {
 void proxima(Playlist *p) {
     if (p->atual) {
         p->atual = p->atual->prox;
-        printf("Tocando: %s - %s\n", p->atual->titulo);
+        printf("Tocando: %s\n", p->atual->titulo);
     }
 }
 
 void anterior(Playlist *p) {
     if (p->atual) {
         p->atual = p->atual->ant;
-        printf("Tocando: %s - %s\n", p->atual->titulo);
+        printf("Tocando: %s\n", p->atual->titulo);
     }
 }
 
@@ -100,7 +106,7 @@ void listar(Playlist *p) {
 
     Musica *m = p->atual;
     for (int i = 1; i <= p->tamanho; i++) {
-        printf("%d. %s - %s", i, m->titulo);
+        printf("%d. %s", i, m->titulo);
         if (m == p->atual) printf(" [TOCANDO]");
         printf("\n");
         m = m->prox;
@@ -111,7 +117,7 @@ int main() {
     Playlist p;
     iniciar(&p);
     int opcao, pos;
-    char titulo[100];
+    char titulo[50];
 
     do {
         printf("\n=== Menu da Playlist ===\n");
