@@ -4,182 +4,126 @@
 
 typedef struct Musica {
     char titulo[50];
-    struct Musica *ant, *prox;
+    struct Musica *ant;
+    struct Musica *prox;
 } Musica;
 
-typedef struct {
-    Musica *atual;
-    int tamanho;
-} Playlist;
+Musica *inicio = NULL;
+Musica *tocando = NULL;
+int tamanho = 0;
 
 
-
-void iniciar(Playlist *p) {
-    p->atual = NULL;
-    p->tamanho = 0;
-}
-
-Musica* criar(const char *titulo) {
-    Musica *m = malloc(sizeof(Musica));
+Musica* novaMusica(char *titulo) {
+    Musica *m = (Musica*)malloc(sizeof(Musica));
     strcpy(m->titulo, titulo);
     m->ant = m->prox = NULL;
     return m;
 }
 
-void adicionar(Playlist *p, const char *titulo, int pos) {
-    Musica *nova = criar(titulo);
-    
-    if (p->tamanho == 0) {
-        nova->prox = nova->ant = nova;
-        p->atual = nova;
-    } 
-    else if (pos <= 1) {
-        Musica *ult = p->atual->ant;
-        nova->prox = p->atual;
-        nova->ant = ult;
-        ult->prox = nova;
-        p->atual->ant = nova;
-        p->atual = nova;
-    } 
-    else if (pos > p->tamanho) {
-        Musica *ult = p->atual->ant;
-        nova->prox = p->atual;
-        nova->ant = ult;
-        ult->prox = nova;
-        p->atual->ant = nova;
-    } 
-    else {
-        Musica *m = p->atual;
-        for (int i = 1; i < pos - 1; i++) m = m->prox;
+void adicionarInicio(char *titulo) {
+    Musica *m = novaMusica(titulo);
+    if (inicio == NULL) {
+        m->prox = m->ant = m;
+        inicio = tocando = m;
+    } else {
+        Musica *ultimo = inicio->ant;
+        m->prox = inicio;
+        m->ant = ultimo;
+        ultimo->prox = m;
+        inicio->ant = m;
+        inicio = m;
+    }
+    tamanho++;
+}
+
+void adicionarFim(char *titulo) {
+    Musica *m = novaMusica(titulo);
+    if (inicio == NULL) {
+        m->prox = m->ant = m;
+        inicio = tocando = m;
+    } else {
+        Musica *ultimo = inicio->ant;
+        m->prox = inicio;
+        m->ant = ultimo;
+        ultimo->prox = m;
+        inicio->ant = m;
+    }
+    tamanho++;
+}
+
+void adicionarMeio(char *titulo, int pos) {
+    if (pos <= 1) {
+        adicionarInicio(titulo);
+    } else if (pos > tamanho) {
+        adicionarFim(titulo);
+    } else {
+        Musica *nova = novaMusica(titulo);
+        Musica *m = inicio;
+        for (int i = 1; i < pos - 1; i++) {
+            m = m->prox;
+        }
         nova->prox = m->prox;
         nova->ant = m;
         m->prox->ant = nova;
         m->prox = nova;
+        tamanho++;
     }
-
-    p->tamanho++;
 }
 
-void remover(Playlist *p, int pos) {
-    if (p->tamanho == 0 || pos < 1 || pos > p->tamanho) {
-        printf("Posição inválida.\n");
+void remover(int pos) {
+    if (tamanho == 0 || pos < 1 || pos > tamanho) {
+        printf("Posicao invalida.\n");
         return;
     }
 
-    Musica *m = p->atual;
-    for (int i = 1; i < pos; i++) m = m->prox;
+    Musica *m = inicio;
+    for (int i = 1; i < pos; i++) {
+        m = m->prox;
+    }
 
-    if (p->tamanho == 1) {
-        p->atual = NULL;
-    } 
-    else {
+    if (tamanho == 1) {
+        inicio = tocando = NULL;
+    } else {
+        if (m == inicio) inicio = m->prox;
+        if (m == tocando) tocando = m->prox;
+
         m->ant->prox = m->prox;
         m->prox->ant = m->ant;
-        if (m == p->atual)
-            p->atual = m->prox;
     }
 
     printf("Removida: %s\n", m->titulo);
     free(m);
-    p->tamanho--;
+    tamanho--;
 }
 
-void proxima(Playlist *p) {
-    if (p->atual) {
-        p->atual = p->atual->prox;
-        printf("Tocando: %s\n", p->atual->titulo);
+void proxima() {
+    if (tocando != NULL) {
+        tocando = tocando->prox;
+        printf("Tocando: %s\n", tocando->titulo);
+    } else {
+        printf("Nenhuma música na playlist.\n");
     }
 }
 
-void anterior(Playlist *p) {
-    if (p->atual) {
-        p->atual = p->atual->ant;
-        printf("Tocando: %s\n", p->atual->titulo);
+void anterior() {
+    if (tocando != NULL) {
+        tocando = tocando->ant;
+        printf("Tocando: %s\n", tocando->titulo);
+    } else {
+        printf("Nenhuma música na playlist.\n");
     }
 }
 
-void listar(Playlist *p) {
-    if (p->tamanho == 0) {
+void listar() {
+    if (inicio == NULL) {
         printf("Playlist vazia.\n");
         return;
     }
-
-    Musica *m = p->atual;
-    for (int i = 1; i <= p->tamanho; i++) {
-        printf("%d. %s", i, m->titulo);
-        if (m == p->atual) printf(" [TOCANDO]");
+    Musica *m = inicio;
+    for (int i = 0; i < tamanho; i++) {
+        printf("%d. %s", i + 1, m->titulo);
+        if (m == tocando) printf(" [TOCANDO]");
         printf("\n");
         m = m->prox;
     }
-}
-
-int main() {
-    Playlist p;
-    iniciar(&p);
-    int opcao, pos;
-    char titulo[50];
-
-    do {
-        printf("\n=== Menu da Playlist ===\n");
-        printf("1. Adicionar musica no inicio\n");
-        printf("2. Adicionar musica no final\n");
-        printf("3. Adicionar em posicao\n");
-        printf("4. Remover por posicao\n");
-        printf("5. Proxima musica\n");
-        printf("6. Musica anterior\n");
-        printf("7. Listar musicas\n");
-        printf("8. Sair\n");
-        printf("========================\n");
-        printf("Escolha uma opcao: ");
-        scanf("%d", &opcao);
-        printf("\n");
-
-        switch (opcao) {
-            case 1:
-            case 2:
-            case 3:
-                printf("Titulo: ");
-                fgets(titulo, 100, stdin);
-                titulo[strcspn(titulo, "\n")] = '\0';
-
-                if (opcao == 1)
-                    adicionar(&p, titulo, 1);
-                else if (opcao == 2)
-                    adicionar(&p, titulo, p.tamanho + 1);
-                else {
-                    printf("Posicao (1 a %d): ", p.tamanho + 1);
-                    scanf("%d", &pos);
-                    adicionar(&p, titulo, pos);
-                }
-                break;
-
-            case 4:
-                printf("Posicao (1 a %d): ", p.tamanho);
-                scanf("%d", &pos);
-                remover(&p, pos);
-                break;
-
-            case 5:
-                proxima(&p);
-                break;
-
-            case 6:
-                anterior(&p);
-                break;
-
-            case 7:
-                listar(&p);
-                break;
-
-            case 8:
-                printf("Saindo...\n");
-                break;
-
-            default:
-                printf("Opcao invalida.\n");
-        }
-
-    } while (opcao != 8);
-
-    return 0;
 }
